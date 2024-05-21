@@ -6,3 +6,4 @@ bin/
 *.png
 *.svg
 *.pdf
+.devcontainer

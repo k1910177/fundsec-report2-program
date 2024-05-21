@@ -29,32 +29,50 @@ func main() {
 	key := make([]byte, nk*4)
 	rand.Read(key)
 
-	plaintexts := generatePlaintexts(nb)
+	candidates := make([]map[byte]int, nk*4)
+	for idx := range candidates {
+		candidates[idx] = make(map[byte]int)
+	}
 
-	ciphertexts := make([][]byte, N)
-	for i := range ciphertexts {
-		ciphertexts[i] = aes.Encrypt(plaintexts[i], key, nr)
+	for tries := 0; tries < 2; tries++ {
+		plaintexts := generatePlaintexts(nb)
+
+		ciphertexts := make([][]byte, N)
+		for i := range ciphertexts {
+			ciphertexts[i] = aes.Encrypt(plaintexts[i], key, nr)
+		}
+
+		for idx := 0; idx < nk*4; idx++ {
+			subkey := make([]byte, nk*4)
+			for value := 0; value < 256; value++ {
+				subkey[idx] = byte(value)
+				subkeyUint32 := aes.ToUint32(subkey)
+
+				xors := byte(0)
+				for i := range ciphertexts {
+					stateBytes := make([]byte, nb*4)
+					copy(stateBytes, ciphertexts[i])
+
+					state := aes.ToUint32(stateBytes)
+					aes.AddRoundKey(subkeyUint32, state)
+					aes.InvSubBytes(state)
+					xors ^= aes.ToBytes(state)[idx]
+				}
+				if xors == 0 {
+					candidates[idx][byte(value)]++
+				}
+			}
+		}
 	}
 
 	subkey := make([]byte, nk*4)
 
-	for idx := 0; idx < nk*4; idx++ {
-		for value := 0; value < 256; value++ {
-			subkey[idx] = byte(value)
-			subkeyUint32 := aes.ToUint32(subkey)
-
-			xors := byte(0)
-			for i := range ciphertexts {
-				stateBytes := make([]byte, nb*4)
-				copy(stateBytes, ciphertexts[i])
-
-				state := aes.ToUint32(stateBytes)
-				aes.AddRoundKey(subkeyUint32, state)
-				aes.InvSubBytes(state)
-				xors ^= aes.ToBytes(state)[idx]
-			}
-			if xors == 0 {
-				break
+	for idx := range candidates {
+		highest_frequency := 0
+		for key, frequency := range candidates[idx] {
+			if frequency > highest_frequency {
+				highest_frequency = frequency
+				subkey[idx] = key
 			}
 		}
 	}
