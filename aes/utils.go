@@ -19,7 +19,6 @@ func KeyExpansion(key []byte, nr int) []uint32 {
 
 	var i int
 
-	// Copy key to xk
 	for i = 0; i < nk; i++ {
 		xk[i] = binary.BigEndian.Uint32(key[4*i:])
 	}
@@ -37,7 +36,6 @@ func KeyExpansion(key []byte, nr int) []uint32 {
 	return xk
 }
 
-// AddRoundKey XORs the round key xk with the state and puts the result in the state
 func AddRoundKey(xk, state []uint32) {
 	state[0] ^= xk[0]
 	state[1] ^= xk[1]
@@ -45,7 +43,6 @@ func AddRoundKey(xk, state []uint32) {
 	state[3] ^= xk[3]
 }
 
-// SubBytes replaces each byte of the state with its substitution in the S-box.
 func SubBytes(state []uint32) {
 	for i := 0; i < 4; i++ {
 		state[i] = uint32(sbox[state[i]>>24])<<24 |
@@ -64,11 +61,6 @@ func InvSubBytes(state []uint32) {
 	}
 }
 
-// ShiftRows modifies the state to shift rows to the left
-// First row is left unchanged
-// Second row is shifted by one cell
-// Third row is shifted by two cells
-// Fourth row is shifted by three cells
 func ShiftRows(state []uint32) {
 	var s0, s1, s2, s3 uint32
 	s0 = state[0]&(0xff<<24) | state[1]&(0xff<<16) | state[2]&(0xff<<8) | state[3]&0xff
@@ -87,8 +79,6 @@ func InvShiftRows(state []uint32) {
 	state[0], state[1], state[2], state[3] = s0, s1, s2, s3
 }
 
-// MixColumns updates the state with the MixColumns operation of the AES. It uses
-// two pre-computed tables that implement multiplication by 2 and by 3 in GF(256).
 func MixColumns(state []uint32) {
 	var b0, b1, b2, b3, d0, d1, d2, d3 byte
 

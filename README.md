@@ -1,9 +1,9 @@
 # Fundamentals of Security
 
-## Requirements
+## System requirements
 
-- VsCode
-- Go
+- Docker
+- VsCode with devcontainer extension
 
 ## Instructions
 
@@ -19,8 +19,15 @@ Open project in vscode
 code fundsec-report2-program
 ```
 
-Run
+Open workspace in devcontainer and wait for it to boot up
+
+Run the attack program in integrated terminal
 
 ```sh
 go run attack.go
 ```
+
+## Note
+
+Alternative method is to manually install Go on your machine then run the program.
+

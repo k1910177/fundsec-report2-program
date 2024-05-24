@@ -18,16 +18,11 @@ func ToBytes(src []uint32) []byte {
 	return dst
 }
 
-// Encrypts a 16-bytes block src using AES encryption with
-// extended key xk and for nr rounds.
-// It returns the encrypted block.
 func Encrypt(src, key []byte, nr int) []byte {
 	xk := KeyExpansion(key, nr)
 
-	// // Initialize the state with the plaintext block
 	state := ToUint32(src)
 
-	// Add the first round key to the state
 	AddRoundKey(xk[0:4], state)
 
 	for i := 1; i < nr; i++ {
